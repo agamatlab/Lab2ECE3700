@@ -1,7 +1,6 @@
 module decoder(
     input  [31:0] Instruction,
     output reg [6:0]  Opcode,
-    output reg [31:0] IMM,
     output reg [6:0]  funct7,
     output reg [2:0]  funct3,
     output reg [4:0]  rs1,
@@ -12,7 +11,6 @@ module decoder(
     output reg        LOAD,
     output reg        STORE
 );
-
     wire [6:0] RType = 7'b0110011;
     wire [6:0] IType = 7'b0010011;
     wire [6:0] LType = 7'b0000011;
@@ -20,9 +18,7 @@ module decoder(
     wire [6:0] BType = 7'b1100011;
 
     always @(*) begin
-        // default all outputs
         Opcode = Instruction[6:0];
-        IMM    = 32'b0;
         funct7 = 7'b0;
         funct3 = 3'b0;
         rs1    = 5'b0;
@@ -43,30 +39,24 @@ module decoder(
             end
 
             IType: begin
-                IMM    = {{20{Instruction[31]}}, Instruction[31:20]};
                 rs1    = Instruction[19:15];
                 funct3 = Instruction[14:12];
                 rd     = Instruction[11:7];
             end
 
             LType: begin
-                IMM    = {{20{Instruction[31]}}, Instruction[31:20]};
                 rs1    = Instruction[19:15];
-                funct3 = 3'b000;
                 rd     = Instruction[11:7];
                 LOAD   = 1'b1;
             end
 
             SType: begin
-                IMM    = {{20{Instruction[31]}}, Instruction[31:25], Instruction[11:7]};
                 rs2    = Instruction[24:20];
                 rs1    = Instruction[19:15];
-                funct3 = 3'b000;
                 STORE  = 1'b1;
             end
 
             BType: begin
-                IMM    = {{20{Instruction[31]}}, Instruction[7], Instruction[30:25], Instruction[11:8], 1'b0};
                 rs1    = Instruction[19:15];
                 rs2    = Instruction[24:20];
                 funct3 = Instruction[14:12];
@@ -77,7 +67,6 @@ module decoder(
             end
 
             default: begin
-                // all defaults
             end
         endcase
     end
